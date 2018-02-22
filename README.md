@@ -13,8 +13,14 @@ follow instructions on https://laravel.com/docs/5.6
 
 ### Instalation instructions
 git clone https://github.com/joaohenriqueabreu/modus-create
-run composer update to install/update all packages
+run composer install to install/update all packages
+copy .env.example file and rename it to .env
 In .env file add the following environment variable: NHTSA_BASE_URL="https://one.nhtsa.gov/webapi/api/SafetyRatings"
+Run php artisan key:generate
+
+(no need to migrate database)
+
+Run php artisan serve in order to start the server
 
 ### Relevant packages used
 GuzzleHttp to make requests for NHTSA api
