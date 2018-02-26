@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Exception;
 
 use App\Vehicle;
 use App\Result;
@@ -29,11 +30,13 @@ class CrashableVehicle extends Vehicle
                     $result->rating = $this->getCrashRating($result->id);                    
                 }
 
-            } else throw new Exception("Could not get API data");
+            } else throw new Exception("No API data or error");
+
+            return true;
 
         } catch (Exception $ex){            
 
-            /// Oh no, there was something wrong
+            /// Oh no, there was something wrong. Abort!
             return false;
         }    
     }
@@ -66,11 +69,6 @@ class CrashableVehicle extends Vehicle
 
         } else return null; /// If it is not found, do not set it, cause toArray will not print it out
             
-    }
-    
-    public function setCrashRating($id, $rating)
-    {
-
     }
 
     public static function nhtsaCrashUrl($id)

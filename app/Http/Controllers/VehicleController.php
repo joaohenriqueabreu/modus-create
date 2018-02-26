@@ -21,15 +21,15 @@ class VehicleController extends Controller
 
             /// Initialize variables            
             /// Validate if it has the input
-            $year = $request->has('modelYear') ? $request->modelYear : '';
-            $make = $request->has('manufacturer') ? $request->manufacturer : '';
-            $model = $request->has('model') ? $request->model : ''; 
+            $year = $request->has('modelYear') ? urldecode($request->modelYear) : '';
+            $make = $request->has('manufacturer') ? urldecode($request->manufacturer) : '';
+            $model = $request->has('model') ? urldecode($request->model) : '';                         
 
             /// Check for withRating query string
             if($request->has('withRating') && $request->withRating === 'true')
-                return $this->processCrashRating($year,$make,$model);
+                return $this->processCrashRating($year, $make, $model);
             else 
-                return $this->processVehicle($year,$make,$model);
+                return $this->processVehicle($year, $make, $model);
             
         } catch (Exception $ex){                        
 
@@ -42,8 +42,13 @@ class VehicleController extends Controller
     public function getVehicle(Request $request, $year, $make, $model)
     {        
         try {
+            /// Decode variables escaping URL
+            $year = urldecode($year);
+            $make = urldecode($make);
+            $model = urldecode($model);            
+
             /// Check for withRating query string            
-            if($request->has('withRating') && $request->withRating === 'true')
+            if($request->has('withRating') && $request->withRating === 'true')                
                 return $this->processCrashRating($year,$make,$model);
             else 
                 return $this->processVehicle($year,$make,$model);        
@@ -61,17 +66,16 @@ class VehicleController extends Controller
             //$vehicle = CrashableVehicle::get($year, $make, $model);
             $vehicle = new CrashableVehicle();
 
-            if($vehicle->get($year, $make, $model)){
+            if($vehicle->get($year, $make, $model))
+                /// We were able to process all records
+                /// We can now return vehicle
+                /// Even if there is no results $vehicle is an empty Vehicle object
+                return response()->json($vehicle);
+            else                             
+                /// We did not get any data
+                return response()->json(new CrashableVehicle());
 
-            }
-            
-            /// We were able to process all records
-            /// We can now return vehicle
-            /// Even if there is no results $vehicle is an empty Vehicle object
-            return response()->json($vehicle);
-
-        } catch (Exception $ex){
-            var_dump($ex);
+        } catch (Exception $ex){            
 
             /// On general errors we should return a empty response                         
             return response()->json(new Vehicle());            
@@ -85,19 +89,17 @@ class VehicleController extends Controller
                 $vehicle = new Vehicle();
                     
                 /// Get data from API
-                if($vehicle->get($year, $make, $model)){
-
-                }
-                
-                /// We were able to process all records
-                /// We can now return vehicle
-                /// Even if there is no results $vehicle is an empty Vehicle object
-                return response()->json($vehicle);
-            
-            
+                if($vehicle->get($year, $make, $model))
+                    /// We were able to process all records
+                    /// We can now return vehicle
+                    /// Even if there is no results $vehicle is an empty Vehicle object
+                    return response()->json($vehicle);                 
+                else                                                                                           
+                    /// We did not get any data
+                    return response()->json(new Vehicle());            
 
         } catch (Exception $ex){            
-
+        
             /// On general errors we should return a empty response                         
             return response()->json(new Vehicle());            
         }        

@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Exception;
 
 use App\Result;
 
@@ -30,10 +31,10 @@ class Vehicle extends Model
         try{
             
             /// First grab the URL
-            $url = self::nhtsaUrl($year,$make,$model);   
+            $url = self::nhtsaUrl($year, $make, $model);   
             
-            $json = $this->getAPIData($url);
-        
+            $json = $this->getAPIData($url);                        
+
             /// First we check the amount of results returned
             if(isset($json) && $json->Count > 0){
                 /// Ok, we have data! 
@@ -43,17 +44,18 @@ class Vehicle extends Model
 
                 /// Loop thru all received results
                 for($i=0; $i < count($results); $i++){
+
                     /// The object inside results is of stdClass so we can use its attributes
                     $this->add($results[$i]->VehicleDescription, $results[$i]->VehicleId);
 
                     /// Any errors, i.e. could not access one of the properties should throw an error
                 }                    
-            } else throw new Exception("Error fetching API data");                  
+            } else throw new Exception("No result or error while fetching API data");                  
 
             return true;
 
         } catch (Exception $ex){
-
+            
             return false;
         }        
     }   
